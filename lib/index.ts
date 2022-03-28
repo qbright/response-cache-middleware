@@ -4,7 +4,7 @@ import { CacheOptions } from './options/cache-options';
 
 import { pathToRegexp, match, parse, compile } from 'path-to-regexp';
 
-class ResponseCacheMiddleware {
+export class ResponseCacheMiddleware {
   options: RegisterOptionParams;
   cacheOptions: CacheOptions = { cacheItems: [], expire: 0 };
 
@@ -99,4 +99,3 @@ class ResponseCacheMiddleware {
   }
 }
 
-export default ResponseCacheMiddleware;

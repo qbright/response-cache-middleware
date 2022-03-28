@@ -23,7 +23,6 @@ export async function expressHandler(
     cacheItem.includeQueryKeys,
     cacheItem.excludeQueryKeys,
   );
-  console.log(query);
   const cacheKey = formatCacheKey(
     options.name,
     req.path,
@@ -118,7 +117,6 @@ function filterQuery(
     // includeQueryKeys exist
     includeQueryKeys.forEach((key) => {
       if (tempQuery[key] != undefined) {
-        console.log(tempQuery[key]);
         handledQuery[key] = tempQuery[key];
       }
     });

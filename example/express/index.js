@@ -2,7 +2,7 @@ const express = require('express');
 const app = express();
 const port = 3000;
 const redis = require('redis');
-const ResponseCacheMiddleware = require('../../dist');
+const { ResponseCacheMiddleware } = require('../../dist');
 
 const redisClient = redis.createClient({
   host: 'localhost',
@@ -21,7 +21,7 @@ app.use(
         path: '/id/:id',
         expire: 0,
         includeQueryKeys: ['b'],
-        excludeQueryKeys:['b']
+        excludeQueryKeys: ['b'],
       },
       {
         name: 'firstCacheAll',
