@@ -2,7 +2,7 @@
   "name": "response-cache-middleware",
   "version": "1.0.2",
   "description": "",
-  "types": "dist/types",
+  "types": "dist/types/index.d.ts",
   "module": "ResponseCacheMiddleware",
   "main": "dist/index.js",
   "scripts": {
@@ -12,7 +12,7 @@
     "example:express": "node ./example/express"
   },
   "files": [
-    "./dist/*",
+    "./dist/",
     "./dist/types/"
   ],
   "repository": {
