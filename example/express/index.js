@@ -17,8 +17,11 @@ app.use(
   ResponseCacheMiddleware.getInstance().expressUse({
     cacheItems: [
       {
-        // name:'firstCache',
+        name: 'firstCache',
         path: '/id/:id',
+        expire: 0,
+        includeQueryKeys: ['b'],
+        excludeQueryKeys:['b']
       },
       {
         name: 'firstCacheAll',
@@ -28,16 +31,25 @@ app.use(
   }),
 );
 
-app.get('/', (req, res) => {
-  res.send('Hello World!');
+// app.get('/', (req, res) => {
+//   res.send('Hello World!');
+//   // res.json({ aa: 1 });
+// });
+
+app.get('/clean', (req, res) => {
+  ResponseCacheMiddleware.getInstance().cleanAllCache();
+  res.send('123');
 });
 
 app.get('/id1/getAll', (req, res) => {
-  res.send('Hello World! getAll');
+  // res.send('Hello World! getAll');
+  res.json({ a: 1 });
 });
 
 app.get('/id/:id', (req, res) => {
-  res.send('Hello World! idid ');
+  setTimeout(() => {
+    res.send(`Hello World! idid ${Date.now()}`);
+  }, 2000);
 });
 
 app.listen(port, () => {

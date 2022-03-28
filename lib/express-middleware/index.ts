@@ -15,10 +15,15 @@ export async function expressHandler(
   cacheItem: CacheItem,
   cacheOptions: CacheOptions,
   req: any,
-  res: Response,
+  res: any,
   next: () => void,
 ) {
-  const query = req.query;
+  const query = filterQuery(
+    req.query,
+    cacheItem.includeQueryKeys,
+    cacheItem.excludeQueryKeys,
+  );
+  console.log(query);
   const cacheKey = formatCacheKey(
     options.name,
     req.path,
@@ -28,7 +33,27 @@ export async function expressHandler(
 
   const redisClient = options.redisClient;
 
-  next();
+  const cacheData = await getCache(redisClient, cacheKey);
+
+  if (cacheData !== null && cacheData !== undefined) {
+    res.send(JSON.parse(cacheData));
+    res.end();
+    return;
+  } else {
+    const originSend = res.send;
+    res.send = function (...args: any[]) {
+      const cacheDataString = JSON.stringify(args[0]);
+      store(
+        redisClient,
+        cacheKey,
+        cacheDataString,
+        getExpire(cacheItem.expire, cacheOptions.expire),
+      );
+      originSend.apply(this, args);
+    };
+
+    next();
+  }
 }
 
 function formatCacheKey(
@@ -49,6 +74,23 @@ function formatCacheKey(
   return cacheKey;
 }
 
+async function getCache(redisClient: any, key: string) {
+  if (!redisClient.isOpen) {
+    await redisClient.connect();
+  }
+  return await redisClient.get(key);
+}
+
+function getExpire(itemExpire: any, optionsExpire: any) {
+  if (itemExpire !== null && itemExpire !== undefined) {
+    return itemExpire;
+  } else if (optionsExpire !== null && optionsExpire !== undefined) {
+    return optionsExpire;
+  } else {
+    return -1;
+  }
+}
+
 async function store(
   redisClient: any,
   key: string,
@@ -58,6 +100,46 @@ async function store(
   if (!redisClient.isOpen) {
     await redisClient.connect();
   }
+
   await redisClient.set(key, value);
-  await redisClient.expire(key, expire);
+  if (expire > 0) {
+    await redisClient.expire(key, expire);
+  }
+}
+
+function filterQuery(
+  query: any,
+  includeQueryKeys?: string[],
+  excludeQueryKeys?: string[],
+) {
+  let handledQuery: any = {};
+  const tempQuery = Object.assign({}, query);
+  if (includeQueryKeys) {
+    // includeQueryKeys exist
+    includeQueryKeys.forEach((key) => {
+      if (tempQuery[key] != undefined) {
+        console.log(tempQuery[key]);
+        handledQuery[key] = tempQuery[key];
+      }
+    });
+    if (excludeQueryKeys) {
+      //  includeQueryKeys and excludeQueryKeys both exist
+      excludeQueryKeys.forEach((keys) => {
+        delete handledQuery[keys];
+      });
+    }
+  } else if (excludeQueryKeys) {
+    // only excludeQueryKey exist
+
+    excludeQueryKeys.forEach((key) => {
+      delete tempQuery[key];
+    });
+
+    handledQuery = Object.assign({}, tempQuery);
+  } else {
+    // both includeQueryKeys and excludeQueryKeys are not exist
+    handledQuery = Object.assign({}, tempQuery);
+  }
+
+  return handledQuery;
 }

@@ -1,6 +1,6 @@
 {
   "name": "response-cache-middleware",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "",
   "types": "dist/types",
   "module": "ResponseCacheMiddleware",
@@ -11,6 +11,9 @@
     "build": "rollup --config ./rollup.config.js",
     "example:express": "node ./example/express"
   },
+  "files": [
+    "./dist/"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/qbright/response-cache-middleware.git"

@@ -54,6 +54,39 @@ class ResponseCacheMiddleware {
     };
   }
 
+  private async getClient() {
+    const redisClient = this.options.redisClient;
+    if (!redisClient.isOpen) {
+      await redisClient.connect();
+    }
+    return redisClient;
+  }
+
+  public async cleanCache(cacheName: string) {
+    const redisClient = await this.getClient();
+    // console.log(await )
+    const keys = await redisClient.keys(`${this.options.name}:${cacheName}:*`);
+    await this.delByKey(keys);
+  }
+
+  public async cleanAllCache() {
+    const redisClient = this.options.redisClient;
+    if (!redisClient.isOpen) {
+      await redisClient.connect();
+    }
+    const keys = await redisClient.keys(`${this.options.name}:*`);
+    await this.delByKey(keys);
+  }
+
+  private async delByKey(keys: string[]) {
+    const redisClient = await this.getClient();
+    await Promise.all(
+      keys.map(async (key: string) => {
+        return await redisClient.del(key);
+      }),
+    );
+  }
+
   public static init(options: RegisterOptionParams) {
     ResponseCacheMiddleware.instance = new ResponseCacheMiddleware(options);
   }

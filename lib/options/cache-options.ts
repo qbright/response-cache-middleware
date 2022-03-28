@@ -6,8 +6,8 @@ export interface CacheOptions {
 export interface CacheItem {
   name?: string;
   path: string;
-  includeParams?: string[];
-  excludeParams?: string[];
+  includeQueryKeys?: string[];
+  excludeQueryKeys?: string[];
   expire: number;
   exp: RegExp;
   match: any;
