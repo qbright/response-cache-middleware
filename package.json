@@ -12,7 +12,8 @@
     "example:express": "node ./example/express"
   },
   "files": [
-    "./dist/"
+    "./dist/*",
+    "./dist/types/"
   ],
   "repository": {
     "type": "git",
